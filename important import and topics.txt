@@ -1,0 +1,9 @@
+//location (url) :
+
+window.location
+
+*old browser supports :
+
+npm i core-js regeneration-runtime
+import 'core-js/stable'
+import 'regeneration-runtime/runtime'
