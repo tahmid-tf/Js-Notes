@@ -1,0 +1,36 @@
+//POST DATA
+
+fetch('https://listview1-ecf4a.firebaseio.com/surveys.json', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+         // name: this.enteredName, //ekhane data thakbe
+         // rating: this.chosenRating
+        })
+      });
+
+//READ DATA (WITH SECURED KEY)
+
+fetch('https://listview1-ecf4a.firebaseio.com/surveys.json')
+        .then(res => res.json())
+        .then(data => {
+          const results = [];
+          for (let key in data) {
+            results.push(data[key]);
+          }
+          this.results = results;
+        });
+
+//FORKIFY EXAMPLE
+
+fetch('https://forkify-api.herokuapp.com/api/search?q=pizza')
+        .then(res => res.json())
+        .then(data => {
+          for (let value in data) {
+            for (let val in data[value]) {
+              console.log(data[value][val]);
+            }
+          }
+        });
