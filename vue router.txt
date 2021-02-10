@@ -1,1 +1,257 @@
 npm install vue-router@next --save
+
+//main.js example ////////////////////////////////////
+
+import { createApp } from 'vue';
+import TeamsList from '@/components/teams/TeamsList.vue';
+import UsersList from '@/components/users/UsersList.vue';
+
+import { createRouter, createWebHistory } from 'vue-router';
+import App from './App.vue';
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/teams', component: TeamsList },
+    { path: '/users', component: UsersList }
+  ]
+});
+
+const app = createApp(App);
+app.use(router);
+
+app.mount('#app');
+
+//App.vue template example /////////////////////////////////////
+
+<template>
+  <the-navigation @set-page="setActivePage"></the-navigation>
+  <main>
+    <!-- <component :is="activePage"></component> -->
+    <router-view></router-view> //example
+  </main>
+</template>
+
+//router-link example ///////////////////////////////////////////
+
+ <router-link to="/users">Users</router-link>
+
+
+//router link css /////////////////////////////////////////////////
+a {
+  /* font: inherit; */
+  text-decoration: none;
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: pointer;
+  color: white;
+  padding: 0.5rem 1.5rem;
+  display: inline-block;
+}
+
+a:hover,
+a:active,
+a.router-link-active { //eta hocche active link je thake take design korar jonno
+  color: #f1a80a;
+  border-color: #f1a80a;
+  background-color: #1a037e;
+}
+</style>
+
+//with method example ///////////////
+
+confirmInput() {
+      this.$router.push('/teams');
+	//this.$router.back();
+    }
+
+// dynamic route ///////////////////////////////
+
+main.js ->  { path: '/teams/:teamId', component: TeamMembers }
+App.vue -> this.$route.params.id
+
+//dynamic route example ////////////////////////////
+
+main.js ->  { path: '/teams/:teamId', component: TeamMembers, props: true }
+TeamMembers.vue
+
+props: ['teamId'],
+
+ methods: {
+    loadTeamMembers(teamId) {
+      // const teamId = route.params.teamId; //parameter hoye asha team Id
+      console.log(teamId);
+    }
+  },
+
+  created() {
+    this.loadTeamMembers(this.teamId); //ekhane kono method thakle age theke create korar ability
+  },
+  watch: {
+    teamId(newRoute) {
+      this.loadTeamMembers(newRoute); //watch e ashar por new route ke update korbe
+    }
+  }
+
+// route types with not Found ///////////////////////////////////////////////
+
+routes: [
+    { path: '/teams', component: TeamsList },
+    { path: '/users', component: UsersList },
+    { path: '/teams/:teamId', component: TeamMembers, props: true },
+    { path: '/:notFound(.*)', redirect: '/teams' } //redirecting all routes in vue v3
+  ]
+
+//route with chlid links /////////////////////////////////////////////
+
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    {
+      path: '/teams',
+      component: TeamsList,
+      children: [{ path: ':teamId', component: TeamMembers, props: true }]
+    },
+    { path: '/users', component: UsersList },
+    { path: '/:notFound(.*)', redirect: '/teams' } //redirecting all routes in vue v3
+  ]
+});
+
+// in TeamList.vue(Parent component) ////////////////////////////
+
+<template>
+  <ul>
+    <router-view></router-view> //child router view ekhane dekhabe (TeamMembers.vue) ///////////////////////////////////
+    <teams-item
+      v-for="team in teams"
+      :key="team.id"
+      :id="team.id"
+      :name="team.name"
+      :member-count="team.members.length"
+    ></teams-item>
+  </ul>
+</template>
+
+//child element e thik motoi kaj hobe normally but just parent element e <router-view> add thakbe ////////
+
+
+
+// naming routes //////////////////////////////////////////////////////////////////////
+
+in main.js
+
+{
+      path: '/teams',
+      component: TeamsList,
+      children: [
+        {
+          path: ':teamId',
+          component: TeamMembers,
+          props: true,
+          name: 'team-members' //naming kora hoise
+        }
+      ]
+    },
+
+in vue files,
+
+ <router-link :to="teamMembersLink">View Members</router-link>
+
+ computed: {
+    teamMembersLink() {
+      // return `/teams/` + this.id;
+      return {
+        name: 'team-members', //name
+        params: { teamId: this.id } //params : id (jodi params thake)
+      };
+    }
+  }
+
+
+//query parameter //////////////////////////////////////////////////////////////////////
+
+ computed: {
+    teamMembersLink() {
+      console.log(this.$route.query);
+      // return `/teams/` + this.id;
+      return {
+        name: 'team-members',
+        params: { teamId: this.id },
+        query: { sort: 'asc' }
+      };
+    }
+  }
+
+// muliple component with one route ///////////////////////////////////////////////////////
+
+ {
+      path: '/teams',
+      components: {
+        default: TeamsList,
+        footer: UserTest
+      },
+      children: [
+        {
+          path: ':teamId',
+          component: TeamMembers,
+          props: true,
+          name: 'team-members'
+        }
+      ]
+    },
+
+//from App.vue.
+
+<template>
+  <the-navigation></the-navigation>
+  <main>
+    <!-- <component :is="activePage"></component> -->
+    <router-view></router-view>
+  </main>
+  <footer>
+    <router-view name="footer"></router-view>
+  </footer>
+</template>
+
+
+// Scroll behaivor //////////////////////////////////////////////////////////////////////////
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes: [
+    { path: '/', redirect: '/teams', name: 'teams' },
+    
+  ],
+  linkActiveClass: 'active',
+  scrollBehavior(to, from, savedPosition) {
+    console.log(to, from, savedPosition);
+    if (savedPosition) {
+      console.log(savedPosition);
+      return savedPosition;
+    }
+    return { left: 0, top: 0 };
+  }
+});
+
+
+// before Enter//////////////////////////////////////////////////////////////////////////////
+
+in routes from main.js,
+
+{
+      path: '/users',
+      component: UsersList,
+      beforeEnter(to, from, next) {
+        console.log(to, from, next);
+      }
+    },
+
+//beforeEach /////////////////////////////////////////////////////////////////////////
+
+from main.js,
+
+router.beforeEach(function(to, from, next) { //afterEach o available
+  console.log('router', to, from);
+  next(true);
+});
