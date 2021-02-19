@@ -255,3 +255,13 @@ router.beforeEach(function(to, from, next) { //afterEach o available
   console.log('router', to, from);
   next(true);
 });
+
+
+////mounting #app after loading initial route////////////////////////////////////////////////
+
+in main.js,
+
+router.isReady().then(() => {
+  app.mount('#app');
+  // mane hocche jkhn router ready hobe tkhn mount korbe, starting location ei mount korbe na
+});

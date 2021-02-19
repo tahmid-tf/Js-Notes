@@ -1,0 +1,183 @@
+//custom animation with keyframes////////////////////////////////////////
+
+.animate {
+  /* transform: translateX(-150px); */
+  animation: slide-fade 2s ease-in forwards;
+  /* forward mane holo keep the final state,animation hocche @keyframe er class ta ke tene niye ashbe */
+}
+
+@keyframes slide-fade {
+  0% {
+    transform: translateX(0) scale(1);
+  }
+
+  70% {
+    transform: translateX(-120px) scale(1.1);
+  }
+
+  100% {
+    transform: translateX(-150px) scale(1);
+  }
+}
+
+//default vue transition classes in css//////////////////////////////////
+
+.v-enter-from {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.v-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.v-enter-to {
+  opacity: 1;
+  transform: translateY(0px);
+}
+
+.v-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+.v-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+}
+.v-leave-active {
+  transition: all 0.3s ease-in;
+}
+
+//from App.js ////////////////////////////
+
+<transition>
+      <p v-if="paraIsVisible">This is only sometimes visible...</p>
+</transition>
+
+// multiple transition ////////////////////////////////////////////////////////////
+
+  <div class="container">
+    <transition name="fade-button" appear mode="out-in">
+      <button @click="showUsers" v-if="!usersAreVisible">Show Users</button>
+      <button @click="hideUsers" v-else>Hide Users</button>
+    </transition>
+  </div>
+
+// with event //////////////////////////////////////////////////////////////////////////
+
+<transition appear name="para" @before-enter="beforeEnter"> //beforeEnter event
+      <p v-if="paraIsVisible">This is only sometimes visible...</p>
+    </transition>
+
+events: beforeEnter,enter,afterEnter,beforeLeave,leave,afterLeave
+
+// https://greensock.com/
+
+//////proper example with events (enteredCancelled,leaveCancelled) ///////////////////////////////////////////
+
+////////////in app.vue
+
+<transition
+      appear
+      @before-enter="beforeEnter"
+      @enter="enter"
+      @leave="leave"
+      @enter-cancelled="enterCancelled"
+      @leave-cancelled="leaveCancelled"
+    >
+      <p v-if="paraIsVisible">This is only sometimes visible...</p>
+</transition>
+
+
+/////////from methods
+
+ methods: {
+    beforeEnter(el) {
+      console.log(el);
+      el.style.opacity = 0;
+    },
+    enter(el, done) {
+      let round = 1;
+      this.enterInterval = setInterval(() => {
+        el.style.opacity = round * 0.01;
+        round++;
+        if (round > 100) {
+          clearInterval(this.enterInterval);
+          done();
+        }
+      }, 20);
+    },
+
+    leave(el, done) {
+      let round = 10;
+      this.leaveInterval = setInterval(() => {
+        el.style.opacity = round * 0.01;
+        round--;
+        if (round == 1) {
+          clearInterval(this.leaveInterval);
+          done();
+        }
+      }, 100);
+    },
+
+    enterCancelled() {
+      clearInterval(this.enterInterval);
+    },
+
+    leaveCancelled() {
+      clearInterval(this.leaveInterval);
+    },
+}
+
+////////Setting css to false///////////////////////////////////
+
+<transition
+      :css="false"
+      appear
+      @before-enter="beforeEnter"
+      @enter="enter"
+      @leave="leave"
+      @enter-cancelled="enterCancelled"
+      @leave-cancelled="leaveCancelled"
+    >
+      <p v-if="paraIsVisible">This is only sometimes visible...</p>
+</transition>
+
+//////////transition with route ///////////////////////////////////////////////
+
+  <div>
+    <router-view v-slot="slotProps">
+      <transition name="fade-button" mode="out-in">
+        <component :is="slotProps.Component"></component>
+      </transition>
+    </router-view>
+  </div>
+
+
+//styles...///////////////////////
+
+.fade-button-enter-from,
+.fade-button-leave-to {
+  opacity: 0;
+}
+.fade-button-enter-active {
+  transition: opacity 0.3s ease-out;
+}
+
+.fade-button-leave-active {
+  transition: opacity 0.3s ease-in;
+}
+
+.fade-button-enter-to,
+.fade-button-leave-from {
+  opacity: 1;
+}
+
+/////in main.js////////////////
+
+router.isReady().then(() => {
+  app.mount('#app');
+  // mane hocche jkhn router ready hobe tkhn mount korbe, starting location ei mount korbe na
+});
+
+
