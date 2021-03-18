@@ -1,0 +1,191 @@
+npm install --save vuex@next
+
+///////starting //////////////////////////////////////////////////////////
+
+in main.js,
+
+import { createStore } from 'vuex';
+
+const store = createStore({
+  state() {
+    return {
+      counter: 0
+    };
+  }
+});
+
+const app = createApp(App);
+
+app.use(store);
+
+/////accessing value in App.vue example, ///////////
+
+<template>
+  <base-container title="Vuex">
+    <h3>{{ $store.state.counter }}</h3>
+	<!-- evabe access kore $store er value -->
+    <button @click="count">Add 1</button>
+  </base-container>
+</template>
+
+<script>
+import BaseContainer from './components/BaseContainer.vue';
+
+export default {
+  components: {
+    BaseContainer
+  },
+  methods: {
+    count() {
+      this.$store.state.counter++;
+    }
+  }
+};
+</script>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: sans-serif;
+}
+
+body {
+  margin: 0;
+}
+</style>
+
+/////////////////mutation(setter) example ///////////////////////////////////////////////////////////////
+
+main.js,
+
+const store = createStore({
+  state() {
+    return {
+      counter: 0
+    };
+  },
+  mutations: {
+    increment(state) {
+      state.counter++;
+    }
+  }
+});
+
+
+in App.vue,
+
+  methods: {
+    addOne() {
+      this.$store.commit('increment');
+    }
+  }
+
+//////////////////////mutation with parameters //////////////////////////////////////
+
+App.vue,
+
+ methods: {
+    addOne() {
+      this.$store.commit('increment', 2);
+    }
+  }
+
+
+main.js,
+
+mutations: {
+    increment(state, v) {
+      state.counter = state.counter + v;
+    }
+  }
+
+
+//////////////////////getters //////////////////////////////////////
+
+//App.vue,
+
+ computed: {
+    counter() {
+      return this.$store.getters.finalCounter; //point it like a property
+    }
+  }
+
+
+
+//main.js,
+
+getters: {
+    finalCounter(state) {
+      return state.counter * 2;
+    }
+  }
+
+///////////getters with getter ///////////////////////////////////////////
+
+//main.js,
+
+getters: {
+    finalCounter(state) {
+      return state.counter * 2;
+    },
+    doubleFinalCounter(state, getters) {
+      return state.counter + getters.finalCounter;
+    }
+  }
+
+////////////////actions //////////////////////////////////////////////////////////////////////
+
+//main.js,
+
+  actions: {
+    //lekhar system
+    increment(context, payload) {
+      //method name + context(targetted method) + payload
+      setTimeout(() => {
+        context.commit('increment', payload); //targetted method commit
+      }, 2000);
+    }
+  }
+
+//App.vue,
+
+methods: {
+    actionCount() {
+      return this.$store.dispatch({ type: 'increment', value: 10 });
+    }
+  }
+
+///////////////////////////////mapGetters(Getters) and mapActions(Actions) ///////////////////////////////////
+
+<template>
+  <div>
+    <h3>{{ doubleFinalCounter }}</h3>
+    <p>We do more ...</p>
+    <button @click="increment({ value: 10 })">Action Count</button>
+  </div>
+</template>
+
+<script>
+import { mapGetters } from 'vuex';
+import { mapActions } from 'vuex';
+
+export default {
+  computed: {
+    ...mapGetters(['doubleFinalCounter'])
+
+    // counter() {
+    //   return this.$store.getters.doubleFinalCounter; //point it like a property
+    // }
+  },
+  methods: {
+    // actionCount() {
+    //   return this.$store.dispatch({ type: 'increment', value: 10 });
+    // }
+
+    ...mapActions(['increment']) //object o pass kora jay if necessary
+  }
+};
+</script>
